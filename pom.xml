@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <!-- Update this when renaming the project -->
   <groupId>com.attivio.searchui</groupId>
-  <artifactId>parent</artifactId>
+  <artifactId>informatics-searchui</artifactId>
   <version>1.0.2-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Parent POM</name>
