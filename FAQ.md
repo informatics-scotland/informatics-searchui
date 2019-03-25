@@ -30,25 +30,37 @@ The property `ALL.entityFields` is a map of the field names to the strings to sh
 
 The realm used when accessing the Attivio server on a user’s behalf is set in the property ALL.defaultRealm. You will likely not need to change this from the default value of "aie" unless you have custom authentication in your instance.
 
-### How do I change the way a single document looks on the results page?
+### How do I change the way documents look on the results page?
 
-You can currently do this by changing the `format` parameter of the `<SearchResults>` component on the page. The available values are `list`, which is the default list format used by the Search UI, `debug`, which presents the default "debug" view with all of each document's field names and values, and `simple`, which provides a view with just the ordinal position, type, name and contents preview of each document.
+For simple cases, you can do this by changing the `format` parameter of the `<SearchResults>` component on the page. The available values are `list`, which is the default list format used by the Search UI, `debug`, which presents the default "debug" view with all of each document's field names and values, and `simple`, which provides a view with just the ordinal position, type, name and contents preview of each document. The `<SearchResults>` component appears in the default Search UI application in the file `SearchUISearchResults.js` and you can change the configuration there.
 
-A future version of SUIT will allow passing a function as this property which is presented a document and returns a rendered element to show for that document.
+Starting with version 1.0.2 of Search UI, it is possible to add custom code that will control how individual search results are rendered in the UI. This process is described in [Custom Search Results](CustomSearchResults.md).
 
-### How do I change the name of the application in the URL (i.e. from “/searchui” to something else)?
+### How do I change the name of the application (i.e. from “searchui” to something else)?
 
-There are a few places you'll need to change this. How you do so will depend on whether you are running Search UI as an Attivio module or hosted in a servlet container like Tomcat.
+You might want to do this if you are creating a customized version of Seaerch UI which needs to live alongside the original one (or any scenario in which you need multiple Search-UI-based applications). This will apply to both the WAR file for running in a servlet container and the module for running inside the Attivio node.
 
-In the file `configuration.properties.js`:
+Here are all of the files you'll need to change to rename the application:
 
-* Change the 
-
-In the file `application.properties` (Servlet only):
-
-* Change the
-
-> **_Updates for this answer are coming_**
+| File | Details |
+| ---- | ------- |
+| [pom.xml](pom.xml) | change the Maven group ID from "com.attivio.searchui" |
+| [frontend/configuration.properties.js](frontend/configuration.properties.js) | change the value of the `basename` property |
+| [frontend/pom.xml](frontend/pom.xml) | change the Maven group ID from "com.attivio.searchui" |
+| [frontend/webpack.config.js](frontend/webpack.config.js) | change the value of the `prefix` variable |
+| [module/pom.xml](module/pom.xml) | change the Maven group ID from "com.attivio.searchui" |
+| [module/dist-assembly.xml](module/dist-assembly.xml) | change the references to the Maven group ID |
+| [module/src/main/resources/attivio.module.json](module/src/main/resources/attivio.module.json) | update the module's name and the replace "searchui" in the directory paths |
+| [module/src/main/resources/conf/searchui](module/src/main/resources/conf/searchui) | Rename directory |
+| [module/src/main/resources/conf/searchui/beans.xml](module/src/main/resources/conf/searchui/beans.xml) | Update value of `configurationPath` property using new directory name |
+| [module/src/main/resources/conf/searchui/features.xml](module/src/main/resources/conf/searchui/features.xml) | change the URLs for the links that appear in the admin UI in the `<f:deployWebapp>` tag |
+| [module/src/main/resources/conf/searchui/module.xml](module/src/main/resources/conf/searchui/module.xml) | Update path used when importing the beans.xml file |
+| [module/src/main/resources/resources/searchui](module/src/main/resources/resources/searchui) | Rename directory |
+| [module/src/main/resources/resources/searchui/configuration.properties.js](module/src/main/resources/resources/searchui/configuration.properties.js) | Make same chanfges as to `frontend/configuration.properties.js` (note that this will be unnecessary once the build is updated to use a single copy of this file for both the module and servlet builds, after which the one in the frontend subproject will be the only one you need to change) |
+| [module/src/main/resources/webapps/searchui](module/src/main/resources/webapps/searchui) | Rename directory |
+| [module/src/main/resources/webapps/searchui/WEB-INF/searchui-servlet.xml](module/src/main/resources/webapps/searchui/WEB-INF/searchui-servlet.xml) | Rename file (but don't alter its contents) |
+| [module/src/main/resources/webapps/searchui/WEB-INF/web.xml](module/src/main/resources/webapps/searchui/WEB-INF/web.xml) | Update the name of the servlet in both the `<servlet>` and `<servlet-mapping>` tags |
+| [servlet/pom.xml](servlet/pom.xml) | change the Maven group ID from "com.attivio.searchui" |
 
 ### How do I change the name displayed for the application (i.e. from “Cognitive Search”)?
 
@@ -60,7 +72,21 @@ This ia a bit more complicated. Please see the tutorial on doing this in the Sea
 
 ### How do I do a one-off query that doesn’t affect the results page?
 
-> **_Updates for this answer are coming_**
+If the component from which you want to do the search is nested inside a Searcher component (there is a Searcher in the SearchUIApp component, which most everything else is inside of), you can use the containing Searcher's `doCustomSearch()` method to perform any sort of _ad hoc_ query that you like. You can access the Searcher component from your component's context by defining it in the component's context types, like this:
+```js
+  import PropTypes from 'prop-types';
+  import { Searcher } from '@attivio/suit';
+  // ...
+    static contextTypes = {
+      searcher: PropTypes.instanceOf(Searcher),
+    };
+```
+
+Once you've defined the searcher, you can perform a query with `this.context.searcher.doCustomSearch(myQuery, callback)`. The myQuery parameter is a SimpleQueryRequest object. You can either construct one yourself (see the [class' documentation](https://attivio.github.io/suit/api/index.html#simplequeryrequest) for details) or, if you want to mostly use the values configured on the Searcher component, you can call its `getQueryRequest()` method to have it build a SimpleQueryRequest object that you can then modify to set the query you want to execute (or other properties, such as the query language). The callback parameter is a function that will be called with the search results (or an error message) when the query completes.
+
+The KnowledgeGraphPanel component uses this technique to perform the query that populates the 360° view of a document; look at [its source code](https://github.com/attivio/suit/blob/master/src/components/KnowledgeGraphPanel.js) to see an example.
+
+You can also instantiate an instance of the Search class (which is what the Searcher uses internally) to have even more control, but this requires more configuration. You might need to use the Search class directly if, say, you want to make a query from code that isn't inside a component. The Search class is documented [here](https://attivio.github.io/suit/api/index.html#search).
 
 ### How do I force the results page to show a new query?
 

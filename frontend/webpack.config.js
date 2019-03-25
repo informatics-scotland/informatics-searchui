@@ -6,6 +6,7 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackIncludeAssetsPlugin = require('html-webpack-include-assets-plugin');
 const EncodingPlugin = require('webpack-encoding-plugin');
+const StyleExtHtmlWebpackPlugin = require('style-ext-html-webpack-plugin');
 
 // This is the base URI for the webapp and is used when links get created for resources
 // such as images and font files. It MUST match the value in the configuration.properties
@@ -73,6 +74,10 @@ module.exports = {
         loader: `url-loader?limit=100000&publicPath=${publicPath}`,
       },
       {
+        test: /\.gif$/,
+        loader: `url-loader?limit=100000&publicPath=${publicPath}`,
+      },
+      {
         test: /\.jpg$/,
         loader: `file-loader?publicPath=${publicPath}`,
       },
@@ -91,9 +96,48 @@ module.exports = {
       },
     ],
   },
-  devtool: 'eval-source-map', // Stuff to do for dev... in this case, generate source maps
+  //devtool: 'eval-source-map', // Stuff to do for dev... in this case, generate source maps - dev line
+  devtool: 'source-map', // prod line
   plugins: [
+    // Prod config start
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify('production')
+    }),
+    /*new webpack.optimize.ModuleConcatenationPlugin(),
     new webpack.optimize.CommonsChunkPlugin({
+      name: 'common',
+      //filename: 'vendor.[chunkhash].js',
+      minChunks (module) {
+          return module.context && module.context.indexOf('node_modules') >= 0;
+      }
+    }),
+    new webpack.optimize.UglifyJsPlugin({
+      compress: {
+          warnings: false,
+          screw_ie8: true,
+          conditionals: true,
+          unused: true,
+          comparisons: true,
+          sequences: true,
+          dead_code: true,
+          evaluate: true,
+          if_return: true,
+          join_vars: true
+      },
+      output: {
+          comments: false
+      },
+      sourceMap: true,
+    }),
+    new ExtractTextPlugin({
+      filename: '[name].[contenthash].css',
+      allChunks: true
+    }),
+    new StyleExtHtmlWebpackPlugin({
+      minify: true
+    }),*/
+    // Prod config end
+    new webpack.optimize.CommonsChunkPlugin({ // dev config
       name: 'common',
     }),
     new FaviconsWebpackPlugin({
@@ -104,11 +148,15 @@ module.exports = {
       inject: 'body',
       title: 'Attivio UI',
     }),
-    new ExtractTextPlugin('style.css'),
+    new ExtractTextPlugin('style.css'), // dev config
     new CopyWebpackPlugin([
       {
         from: './src/img',
         to: 'img/',
+      },
+      {
+        from: './src/closer.html',
+        to: 'closer.html',
       },
       {
         from: './src/factbook_resources',

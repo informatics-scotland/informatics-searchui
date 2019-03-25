@@ -101,7 +101,7 @@
     // the Deploy Webapp feature in the module will define the type of authentication that
     // will secure the UI. Note that you can also use 'NONE' during the course of developing
     // an application.
-    authType: 'XML',
+    authType: 'NONE',
 
     // This is the default principal realm to use when searching.
     defaultRealm: 'aie',
@@ -221,26 +221,6 @@
     allowLanguageSelect: true,
     autoCompleteUri: '/rest/autocompleteApi/richCgi/dictionaryProvider',
   },
-  
-  /** 
-   * These properties configure the default properties for FacetSearchBar components in the UI. The
-   * FacetSearchBar allows searching among all values of a specific facet, as well as exporting the
-   * list of all values for that facet to a CSV file.
-   */
-  FacetSearchBar: {
-	// Whether the FacetSearchBar should be visible
-	showSearchBar: false,
-	// The placeholder text for the search bar
-        placeholder: 'Search values\u2026',
-	// The label on the 'Search' button
-        buttonLabel: 'Search',
-	// Max number of matching facet values to show
-	maxValues: 5,
-	// Whether there should be an export button
-	showExportButton: false,
-	// The label for the export button
-	exportButtonLabel: 'Export',
-  },
 
   /**
    * These properties configure only the default values for properties of any Searcher component(s).
@@ -248,7 +228,7 @@
    */
   Searcher: {
     // The workflow to use for executing searches
-    searchWorkflow: 'search',
+    searchWorkflow: 'nlpSearch',
     // The number of results to show per page
     resultsPerPage: 10,
     // An ordered list of facet requests to use for each query; facet expressions are also supported
@@ -256,16 +236,21 @@
       'position',
       'keyphrases(maxbuckets=15)',
       'table',
+      'sector',
+      'customer',
+      'source',
       'tags',
-      'company',
-      'people',
-      'location',
+      'hashtags',
+      'catchment',
+      'local_authority',
+      'team',
+      'site',
+      'licence',
       'date(sortby=VALUE,maxbuckets=60,dateIntervals=auto)',
+      'mentions'
     ],
     // The maximum number of facets the Facet Finder attempts to add to the query. Set this to 0 to turn off Facet Finder.
     facetFinderCount: 20,
-    // Determines if primary results should be displayed as 'list', 'usercard', 'doccard', 'debug', or 'simple';
-    format: 'list',
     // An optional filter to apply to all queries when using the advanced query language
     queryFilter: '',
     // The locale for queries; all linguistic processing is performed using this locale
@@ -281,6 +266,8 @@
     // The name of the Business Center profile to use for queries. If set, this will enable Profile level
     // campaigns and promotions.
     businessCenterProfile: 'Attivio',
+    // An optional field collapse parameter to set for queries
+    fieldCollapse: '',
   },
 
   /**
@@ -416,4 +403,61 @@
     // only show links to documents that come from tables other than the one the main document is in.
     includeAllTables: false,
   },
+
+  /**
+   * These properties configure the Spotfire web player 
+   */
+  SpotfireWebPlayer: {
+    // set the Spotfire server host web player address
+    host: 'http://sepa-app-spl01',
+    // set the log in url
+    loginUrl: 'http://sepa-app-spl01',
+    // document field name the holds a host if you are overriding the property declared above
+    suitSpotfireHostField: 'spotfire.host',
+    // document field name the holds the log in url if you are overriding the property declared above
+    suitSpotfireLogInUrlField: 'spotfire.login.url',
+    // document field name that holds the path to the spotfire tool
+    suitSpotfireFileField: 'spotfire.file',
+    // Document field name that holds the Spotfire tool name
+    suitSpotfireToolField: 'tool',
+    // Document field name that holds an (Optional) widget name instead of using the table name for certain widgets
+    spotfireWidgetNameField: 'spotfire.widget.name', 
+    // document field name that holds type of Spotfire tool
+    spotfireTypeField: 'suit.type',
+    // document field name that holds spotfire entities JSON string 
+    spotfireEntitiesField: "spotfireEntities",   
+    // path to widgets in the spotfire library
+    spotfireWidgetHome: '/Projects/Metadata Tools/Widgets/',
+    // path to widgets in the spotfire library
+    spotfireToolHome: '/Projects/Metadata Tools/Tools/',
+    // property to call in Spotfire when opening a tool initially
+    startUpProperty: "attivioConfiguration",
+    // property to call for general query filters i.e. those that did not match an entity
+    generalQueryName: 'General_nometadata',
+    // property name or filter postfix to use for setting each widget 
+    widgetIdField: 'Id',
+    // table name to use for filtering of a widget
+    widgetIdTable: 'Attivio Id Table',
+    // Default customisation settings for any Spotfire tool
+    customizationInfo: {
+      showTopHeader: false,
+      showToolBar: false,
+      showExportFile: true,
+      showExportVisualization: true,
+      showCustomizableHeader: false,
+      showPageNavigation: false,
+      showStatusBar: false,
+      showDodPanel: false,
+      showFilterPanel: false,
+      showAbout: false,
+      showAnalysisInformationTool: false,
+      showAuthor: false,
+      showClose: false,
+      showHelp: true,
+      showLogout: false,
+      showReloadAnalysis: false,
+      showUndoRedo: false,
+      showAnalysisInfo: false
+    },
+  }
 }

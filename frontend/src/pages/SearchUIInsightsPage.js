@@ -1,18 +1,18 @@
 // @flow
 import React from 'react';
 import PropTypes from 'prop-types';
-import DocumentTitle from 'react-document-title';
 
 import {
+  AuthUtils,
   Configurable,
+  FacetInsights,
   Masthead,
   MastheadNavTabs,
   SearchBar,
-  SecondaryNavBar,
   SearchResultsCount,
   SearchResultsFacetFilters,
-  FacetInsights,
-} from '@attivio/suit';
+  SecondaryNavBar,
+} from '@informatics-scotland/informatics-suit';
 
 import SearchUIApp from '../SearchUIApp';
 
@@ -63,25 +63,23 @@ class SearchUIInsightsPage extends React.Component<SearchUIInsightsPageProps, Se
 
   render() {
     return (
-      <DocumentTitle title="Insights: Attivio Cognitive Search">
-        <div>
-          <Masthead multiline homeRoute="/landing">
-            <MastheadNavTabs initialTab="/insights" tabInfo={this.context.app.getMastheadNavTabs()} />
-            <SearchBar
-              inMasthead
-            />
-          </Masthead>
-          <SecondaryNavBar>
-            <SearchResultsCount />
-            <SearchResultsFacetFilters />
-          </SecondaryNavBar>
-          <div style={{ padding: '10px' }}>
-            <FacetInsights
-              {...this.props}
-            />
-          </div>
+      <div>
+        <Masthead multiline homeRoute="/landing" logoutFunction={AuthUtils.logout}>
+          <MastheadNavTabs initialTab="/insights" tabInfo={this.context.app.getMastheadNavTabs()} />
+          <SearchBar
+            inMasthead
+          />
+        </Masthead>
+        <SecondaryNavBar>
+          <SearchResultsCount />
+          <SearchResultsFacetFilters />
+        </SecondaryNavBar>
+        <div style={{ padding: '10px' }}>
+          <FacetInsights
+            {...this.props}
+          />
         </div>
-      </DocumentTitle>
+      </div>
     );
   }
 }
